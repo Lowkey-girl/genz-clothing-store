@@ -25,11 +25,13 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
 });
+
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "genz_clothing_db",
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,
+  port: process.env.MYSQLPORT,
 });
 
 db.connect((err) => {

@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+html {
+  transition: background-color 0.3s, color 0.3s;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #ff6b35;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.blob {
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+/* 🌙 Night Mode Styles */
+body.night {
+  background-color: #0f0f0f;
+  color: #ffffff;
+}
+
+/* Cards */
+body.night .card {
+  background-color: #1a1a1a;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Navbar */
+body.night .navbar {
+  background-color: #111111;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Buttons */
+body.night .btn {
+  background-color: #2563eb;
+  color: white;
+}
+
+/* Inputs */
+body.night input,
+body.night select,
+body.night textarea {
+  background-color: #1a1a1a;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Smooth transition */
+body,
+.card,
+.navbar,
+.btn,
+input,
+select,
+textarea {
+  transition: background-color 0.3s, color 0.3s, border 0.3s;
+}

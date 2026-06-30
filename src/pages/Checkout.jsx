@@ -26,14 +26,26 @@ export default function Checkout({ cart, setCart }) {
     }
   };
 
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
   e.preventDefault();
 
-  console.log("Submit button clicked");
+  if (!user) {
+    alert("Please login first.");
+    navigate("/login");
+    return;
+  }
+
+  if (!file) {
+    alert("Please upload your receipt.");
+    return;
+  }
+
+  setLoading(true);
+  setError("");
 
   const formData = new FormData();
   formData.append("receipt", file);
-  formData.append("user_id", user.id);
+ formData.append("user_id", user?.id || 0);
   formData.append("total_price", total);
   formData.append("items", JSON.stringify(cart));
 
@@ -42,30 +54,36 @@ export default function Checkout({ cart, setCart }) {
   console.log("cart =", cart);
 
   try {
+    setLoading(true);
   console.log("Logged in user:", user);
-  const response = await fetch("http://localhost:3000/api/checkout", {
-    method: "POST",
-    body: formData,
-  });
 
-  const data = await response.json();
+const response = await fetch("http://localhost:3000/api/checkout", {
+  method: "POST",
+  body: formData,
+});
 
-  console.log(data);
+console.log("HTTP Status:", response.status);
 
-  if (data.success) {
-    setSuccess(true);
-    setCart([]);
+const data = await response.json();
 
-    // wait 1 second then go home
-    setTimeout(() => {
-      navigate("/Thanks");
-    }, 1000);
-  } else {
-    setError("Checkout failed");
-  }
+console.log("Response:", data);
+
+if (data.success) {
+  console.log("Going to Thanks page...");
+
+  setSuccess(true);
+  setCart([]);
+
+  navigate("/thanks");
+} else {
+  console.log("Checkout failed");
+  setError("Checkout failed");
+}
 
 } catch (err) {
-  console.error(err);
+  setError("Server error");
+} finally {
+  setLoading(false);
 }
 };
 

@@ -280,70 +280,53 @@ status: item.stock > 0 ? "Active" : "Inactive",
   const openEdit = (p: Product) => setModal({ open: true, mode: "edit", data: { ...p } });
   const closeModal = () => setModal((m) => ({ ...m, open: false }));
 
-  const handleSave = async () => {
+ const handleSave = async () => {
   try {
+    const product = {
+      name: modal.data.name,
+      price: modal.data.price,
+      image: modal.data.images[0] || "",
+      description: "",
+      category_id: 1, // change later
+      stock: modal.data.stock,
+    };
+
     if (modal.mode === "add") {
-      await fetch(
-        "http://localhost:3000/api/categories",
-        {
-          method: "POST",
-          
-          body: JSON.stringify({
-            category_name: modal.data.name,
-          }),
-        }
-      );
+      await fetch("http://localhost:3000/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(product),
+      });
     } else {
-      await fetch(
-        `http://localhost:3000/api/categories/${modal.data.id}`,
-        {
-          method: "PUT",
-          
-          body: JSON.stringify({
-            category_name: modal.data.name,
-          }),
-        }
-      );
+      await fetch(`http://localhost:3000/api/products/${modal.data.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(product),
+      });
     }
 
-    const res = await fetch(
-      "http://localhost:3000/api/categories"
-    );
-
+    const res = await fetch("http://localhost:3000/api/products");
     const data = await res.json();
 
-    const formatted = data.map((item: any) => ({
-      id: item.id,
-      name: item.category_name,
-      description: "",
-      productCount: 0,
-      slug: item.category_name
-        .toLowerCase()
-        .replace(/\s+/g, "-"),
-    }));
-
-    setCategories(formatted);
+    setProducts(
+      data.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        category: item.category_name,
+        price: Number(item.price),
+        stock: Number(item.stock),
+        status: item.stock > 0 ? "Active" : "Inactive",
+        images: item.image
+          ? [`http://localhost:3000/upload/${item.image}`]
+          : [],
+      }))
+    );
 
     closeModal();
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-  const handleDelete = async (id: number) => {
-  try {
-    await fetch(
-      `http://localhost:3000/api/products/${id}`,
-      {
-        method: "DELETE",
-      }
-    );
-
-    setProducts(
-      products.filter((p) => p.id !== id)
-    );
-
-    setDeleteConfirm(null);
   } catch (err) {
     console.log(err);
   }

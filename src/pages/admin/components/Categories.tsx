@@ -41,37 +41,45 @@ export function Categories() {
   const closeModal = () => setModal((m) => ({ ...m, open: false }));
 
   const handleSave = async () => {
-  if (!modal.data.name.trim()) return;
+  if (!modal.data.name.trim()) {
+    alert("Please enter category name");
+    return;
+  }
 
   try {
+    let response;
+
     if (modal.mode === "add") {
-      await fetch(
-        "http://localhost:3000/api/categories",
-        {
-          method: "POST",
-          
-          body: JSON.stringify({
-            category_name: modal.data.name,
-          }),
-        }
-      );
+      response = await fetch("http://localhost:3000/api/categories", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    category_name: modal.data.name,
+  }),
+});
     } else {
-      await fetch(
-        `http://localhost:3000/api/categories/${modal.data.id}`,
-        {
-          method: "PUT",
-          
-          body: JSON.stringify({
-            category_name: modal.data.name,
-          }),
-        }
-      );
+      response = await fetch(`http://localhost:3000/api/categories/${modal.data.id}`, {
+  method: "PUT",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    category_name: modal.data.name,
+  }),
+});
     }
 
-    const res = await fetch(
-      "http://localhost:3000/api/categories"
-    );
+    const result = await response.json();
 
+    if (!result.success) {
+      alert(result.message || "Operation failed");
+      return;
+    }
+
+    // Reload categories
+    const res = await fetch("http://localhost:3000/api/categories");
     const data = await res.json();
 
     const formatted = data.map((item: any) => ({
@@ -79,16 +87,14 @@ export function Categories() {
       name: item.category_name,
       description: "",
       productCount: 0,
-      slug: item.category_name
-        .toLowerCase()
-        .replace(/\s+/g, "-"),
+      slug: item.category_name.toLowerCase().replace(/\s+/g, "-"),
     }));
 
     setCategories(formatted);
-
     closeModal();
   } catch (err) {
-    console.log(err);
+    console.error(err);
+    alert("Server Error");
   }
 };
 const handleDelete = async (id: number) => {

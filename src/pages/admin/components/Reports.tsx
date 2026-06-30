@@ -46,7 +46,7 @@ const summaryStats = [
   { label: "Total Revenue", value: "$881,290", sub: "FY 2024", icon: <DollarSign size={18} />, color: "#3b82f6" },
   { label: "Total Orders", value: "8,490", sub: "FY 2024", icon: <ShoppingCart size={18} />, color: "#10b981" },
   { label: "Best Month", value: "November", sub: "$92,400", icon: <TrendingUp size={18} />, color: "#f59e0b" },
-  { label: "Top Product", value: "Smart Watch X", sub: "1,284 units", icon: <Package size={18} />, color: "#8b5cf6" },
+  { label: "Top Product", value: "Clothes Gen-Z", sub: "1,284 units", icon: <Package size={18} />, color: "#8b5cf6" },
 ];
 
 const tooltipStyle = { background: "#1e2740", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, fontSize: 12, color: "#e2e8f0" };

@@ -2,13 +2,33 @@ const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 const multer = require("multer");
-const path = require("path");
 const app = express();
+const path = require("path");
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use("/uploads", express.static("uploads"));
+
+// Serve images from server/product_images/upload
+app.use(
+  "/product_images",
+  express.static(path.join(__dirname, "product_images", "upload"))
+);
+
+console.log("Server directory:", __dirname);
+console.log(
+  "Images directory:",
+  path.join(__dirname, "product_images", "upload")
+);
+const fs = require("fs");
+
+console.log(
+  "tee2 exists:",
+  fs.existsSync(path.join(__dirname, "product_images", "tee2.jpg"))
+);
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");
@@ -27,16 +47,11 @@ const upload = multer({
 });
 
 const db = mysql.createConnection({
-  host: process.env.MYSQLHOST,
-  user: process.env.MYSQLUSER,
-  password: process.env.MYSQLPASSWORD,
-  database: process.env.MYSQLDATABASE,
-  port: process.env.MYSQLPORT,
-});
-
-db.connect((err) => {
-  if (err) throw err;
-  console.log("MySQL Connected");
+  host: "localhost",
+  user: "root",
+  password: "",      // change if your XAMPP has a password
+  database: "genz_clothing_db", // use your actual database name
+  port: 3306,
 });
 
 
@@ -172,23 +187,27 @@ app.get("/api/categories", (req, res) => {
 
 // ADD
 app.post("/api/categories", (req, res) => {
-  const { category_name } = req.body;
+    console.log(req.body);
+    console.log("BODY =", req.body);
 
-  db.query(
-    "INSERT INTO categories (category_name) VALUES (?)",
-    [category_name],
-    (err, result) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json(err);
-      }
+    const { category_name } = req.body;
 
-      res.json({
-        success: true,
-        message: "Category added",
-      });
-    }
-  );
+    console.log(category_name);
+
+    db.query(
+        "INSERT INTO categories(category_name) VALUES(?)",
+        [category_name],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json(err);
+            }
+
+            res.json({
+                success: true,
+            });
+        }
+    );
 });
 
 // UPDATE
@@ -259,15 +278,26 @@ app.get("/api/products", (req, res) => {
 });
 
 // ADD
-app.post("/api/products", (req, res) => {
+app.post("/api/products", upload.single("image"), (req, res) => {
+
+  console.log("BODY:", req.body);   // <-- ADD HERE
+
   const {
-    name,
-    price,
-    image,
-    description,
-    category_id,
-    stock,
-  } = req.body;
+  name,
+  price,
+  description,
+  category_id,
+  stock,
+} = req.body;
+
+const image = req.file ? req.file.filename : "";
+
+  console.log(name);
+  console.log(price);
+  console.log(image);
+  console.log(description);
+  console.log(category_id);
+  console.log(stock);
 
   const sql = `
     INSERT INTO products
@@ -304,13 +334,14 @@ app.put("/api/products/:id", (req, res) => {
   const { id } = req.params;
 
   const {
-    name,
-    price,
-    image,
-    description,
-    category_id,
-    stock,
-  } = req.body;
+  name,
+  price,
+  description,
+  category_id,
+  stock,
+} = req.body;
+
+const image = req.file ? req.file.filename : "";
 
   const sql = `
     UPDATE products
@@ -675,6 +706,8 @@ app.put("/api/orders/:id/status", (req, res) => {
 // START SERVER
 // =========================
 
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

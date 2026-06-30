@@ -76,7 +76,7 @@ function App() {
         />
 
         {/* THANK YOU */}
-        <Route path="/Thanks" element={<Thanks />} />
+        <Route path="/thanks" element={<Thanks />} />
 
         {/* PRODUCT DETAIL */}
         <Route
